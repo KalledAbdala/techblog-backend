@@ -1,4 +1,4 @@
-# 🚀 TechBlog Backend
+# TechBlog Backend
 
 Backend desenvolvido para o desafio técnico da Mind Group.
 
