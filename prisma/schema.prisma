@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+
+  role Role @default(USER)
+
+  bio    String?
+  avatar Bytes?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  articles Article[]
+  comments Comment[]
+  likes    ArticleLike[]
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  slug  String @unique
+  color String @default("#3B82F6")
+
+  createdAt DateTime @default(now())
+
+  articles Article[]
+}
+
+model Article {
+  id      Int    @id @default(autoincrement())
+  title   String
+  slug    String @unique
+  summary String
+  content String @db.LongText
+  banner  Bytes?
+
+  readingTime Int
+  views       Int     @default(0)
+  published   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId   Int
+  categoryId Int
+
+  author   User     @relation(fields: [authorId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  comments    Comment[]
+  likes       ArticleLike[]
+  articleTags ArticleTag[]
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  content String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    Int
+  articleId Int
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+
+  createdAt DateTime @default(now())
+
+  articleTags ArticleTag[]
+}
+
+model ArticleTag {
+  articleId Int
+  tagId     Int
+
+  article Article @relation(fields: [articleId], references: [id])
+  tag     Tag     @relation(fields: [tagId], references: [id])
+
+  @@id([articleId, tagId])
+}
+
+model ArticleLike {
+  userId    Int
+  articleId Int
+
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+
+  @@id([userId, articleId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
