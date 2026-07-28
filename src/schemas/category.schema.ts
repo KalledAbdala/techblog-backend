@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const createCategorySchema = z.object({
+
     name: z
     .string()
     .min(3, "O nome deve possuir no mínimo 3 caracteres.")
@@ -10,5 +11,20 @@ export const createCategorySchema = z.object({
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Cor inválida. Utilize o formato hexadecimal."),
 });
+
+export const updateCategorySchema = z.object({
+    name: z
+    .string()
+    .min(3)
+    .max(50)
+    .optional(),
+
+    color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/)
+    .optional(),
+});
+
+export type UpdateCategoryDTO = z.infer<typeof updateCategorySchema>;
 
 export type CreateCategoryDTO = z.infer<typeof createCategorySchema>;
