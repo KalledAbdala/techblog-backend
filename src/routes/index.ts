@@ -1,5 +1,7 @@
 import { Router } from "express";
 
+import { articleRouter } from "./article.routes.js";
+
 import { categoryRouter } from "./category.routes.js";
 
 import { authRouter } from "./auth.routes.js";
@@ -9,6 +11,7 @@ const router = Router();
 
 router.use("/auth", authRouter);
 router.use("/categories", categoryRouter);
+router.use("/articles", articleRouter);
 
 router.get(
     "/me",
