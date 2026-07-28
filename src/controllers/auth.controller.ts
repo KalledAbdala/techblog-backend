@@ -12,7 +12,9 @@ async register(req: Request, res: Response) {
 }
 
 async login(req: Request, res: Response) {
+const result = await this.authService.login(req.body);
 
+return res.status(200).json(result);
 }
 
 }

@@ -1,9 +1,52 @@
-import { AppError } from "../errors/AppError.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
 import { prisma } from "../lib/prisma.js";
-import type { RegisterDTO } from "../schemas/auth.schema.js";
+import { AppError } from "../errors/AppError.js";
+import { jwtConfig } from "../config/jwt.js";
+
+import type { RegisterDTO, LoginDTO } from "../schemas/auth.schema.js";
 
 export class AuthService {
+async login(data: LoginDTO) {
+const user = await prisma.user.findUnique({
+    where: {
+    email: data.email,
+    },
+});
+
+if (!user) {
+    throw new AppError("E-mail ou senha inválidos.", 401);
+}
+
+const passwordMatch = await bcrypt.compare(
+    data.password,
+    user.password
+);
+
+if (!passwordMatch) {
+    throw new AppError("E-mail ou senha inválidos.", 401);
+}
+
+const token = jwt.sign(
+{
+    id: user.id,
+    role: user.role,
+},
+jwtConfig.secret,
+{
+    expiresIn: "7d",
+}
+);
+
+const { password, ...userWithoutPassword } = user;
+
+return {
+    user: userWithoutPassword,
+    token,
+};
+}
+
 async register(data: RegisterDTO) {
     const { confirmPassword, ...userData } = data;
 
