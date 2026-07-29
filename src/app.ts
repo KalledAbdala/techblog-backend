@@ -1,3 +1,5 @@
+import path from "path";
+
 import express from "express";
 import cors from "cors";
 
@@ -17,7 +19,13 @@ return res.status(200).json({
 });
 });
 
-// Rotas da API
+// 
+app.use(
+    "/uploads",
+    express.static(path.resolve("uploads"))
+);
+
+// API
 app.use(router);
 
 app.use(errorMiddleware);

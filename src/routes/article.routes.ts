@@ -1,5 +1,7 @@
 import { Router } from "express";
 
+import { upload } from "../config/multer.js";
+
 import { ArticleController } from "../controllers/article.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -43,6 +45,15 @@ articleRouter.delete(
     authMiddleware,
     asyncHandler(
     articleController.delete.bind(articleController)
+    )
+);
+
+articleRouter.post(
+    "/:id/banner",
+    authMiddleware,
+    upload.single("banner"),
+    asyncHandler(
+        articleController.uploadBanner.bind(articleController)
     )
 );
 

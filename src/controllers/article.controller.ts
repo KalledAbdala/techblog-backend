@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 
+import { AppError } from "../errors/AppError.js";
+
 import { ArticleService } from "../services/article.service.js";
 import {
     createArticleSchema,
@@ -68,6 +70,22 @@ async delete(req: Request, res: Response) {
     await this.articleService.delete(id);
 
     return res.status(204).send();
+}
+
+async uploadBanner(req: Request, res: Response) {
+
+    const id = Number(req.params.id);
+
+    if (!req.file) {
+        throw new AppError("Imagem não enviada.", 400);
+    }
+
+    const article = await this.articleService.uploadBanner(
+        id,
+        req.file.filename
+    );
+
+    return res.json(article);
 }
 
 }

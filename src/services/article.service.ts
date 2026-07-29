@@ -209,4 +209,30 @@ async delete(id: number) {
     });
 }
 
+async uploadBanner(
+    id: number,
+    filename: string
+) {
+
+    const article = await prisma.article.findUnique({
+        where: {
+            id,
+        },
+    });
+
+    if (!article) {
+        throw new AppError("Artigo não encontrado.", 404);
+    }
+
+    return prisma.article.update({
+        where: {
+            id,
+        },
+        data: {
+            banner: filename,
+        },
+    });
+
+}
+
 }

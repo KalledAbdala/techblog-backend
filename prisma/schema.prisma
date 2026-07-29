@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,109 +7,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  name     String
-  email    String @unique
-  password String
-
-  role Role @default(USER)
-
-  bio    String?
-  avatar Bytes?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  articles Article[]
-  comments Comment[]
-  likes    ArticleLike[]
-}
-
-model Category {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  slug  String @unique
-  color String @default("#3B82F6")
-
-  createdAt DateTime @default(now())
-
-  articles Article[]
-}
-
-model Article {
-  id      Int    @id @default(autoincrement())
-  title   String
-  slug    String @unique
-  summary String @db.Text
-  content String @db.LongText
-  banner  Bytes?
-
+model article {
+  id          Int           @id @default(autoincrement())
+  title       String
+  slug        String        @unique(map: "Article_slug_key")
+  summary     String        @db.Text
+  content     String        @db.LongText
+  banner      String?
   readingTime Int
-  views       Int     @default(0)
-  published   Boolean @default(false)
+  views       Int           @default(0)
+  published   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  authorId    Int
+  categoryId  Int
+  user        user          @relation(fields: [authorId], references: [id], map: "Article_authorId_fkey")
+  category    category      @relation(fields: [categoryId], references: [id], map: "Article_categoryId_fkey")
+  articlelike articlelike[]
+  articletag  articletag[]
+  comment     comment[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  authorId   Int
-  categoryId Int
-
-  author   User     @relation(fields: [authorId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
-
-  comments    Comment[]
-  likes       ArticleLike[]
-  articleTags ArticleTag[]
+  @@index([authorId], map: "Article_authorId_fkey")
+  @@index([categoryId], map: "Article_categoryId_fkey")
 }
 
-model Comment {
-  id      Int    @id @default(autoincrement())
-  content String @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+model articlelike {
   userId    Int
   articleId Int
-
-  user    User    @relation(fields: [userId], references: [id])
-  article Article @relation(fields: [articleId], references: [id])
-}
-
-model Tag {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-  slug String @unique
-
   createdAt DateTime @default(now())
-
-  articleTags ArticleTag[]
-}
-
-model ArticleTag {
-  articleId Int
-  tagId     Int
-
-  article Article @relation(fields: [articleId], references: [id])
-  tag     Tag     @relation(fields: [tagId], references: [id])
-
-  @@id([articleId, tagId])
-}
-
-model ArticleLike {
-  userId    Int
-  articleId Int
-
-  createdAt DateTime @default(now())
-
-  user    User    @relation(fields: [userId], references: [id])
-  article Article @relation(fields: [articleId], references: [id])
+  article   article  @relation(fields: [articleId], references: [id], map: "ArticleLike_articleId_fkey")
+  user      user     @relation(fields: [userId], references: [id], map: "ArticleLike_userId_fkey")
 
   @@id([userId, articleId])
+  @@index([articleId], map: "ArticleLike_articleId_fkey")
 }
 
-enum Role {
+model articletag {
+  articleId Int
+  tagId     Int
+  article   article @relation(fields: [articleId], references: [id], map: "ArticleTag_articleId_fkey")
+  tag       tag     @relation(fields: [tagId], references: [id], map: "ArticleTag_tagId_fkey")
+
+  @@id([articleId, tagId])
+  @@index([tagId], map: "ArticleTag_tagId_fkey")
+}
+
+model category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique(map: "Category_name_key")
+  slug      String    @unique(map: "Category_slug_key")
+  color     String    @default("#3B82F6")
+  createdAt DateTime  @default(now())
+  article   article[]
+}
+
+model comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  userId    Int
+  articleId Int
+  article   article  @relation(fields: [articleId], references: [id], map: "Comment_articleId_fkey")
+  user      user     @relation(fields: [userId], references: [id], map: "Comment_userId_fkey")
+
+  @@index([articleId], map: "Comment_articleId_fkey")
+  @@index([userId], map: "Comment_userId_fkey")
+}
+
+model tag {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique(map: "Tag_name_key")
+  slug       String       @unique(map: "Tag_slug_key")
+  createdAt  DateTime     @default(now())
+  articletag articletag[]
+}
+
+model user {
+  id          Int           @id @default(autoincrement())
+  name        String
+  email       String        @unique(map: "User_email_key")
+  password    String
+  role        user_role     @default(USER)
+  bio         String?
+  avatar      Bytes?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  article     article[]
+  articlelike articlelike[]
+  comment     comment[]
+}
+
+enum user_role {
   USER
   ADMIN
 }
