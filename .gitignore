@@ -1,15 +1,21 @@
+# Dependencies
 node_modules
-# Keep environment variables out of version control
-.env
 
-/src/generated/prisma
-
-node_modules
-.env
+# Build
 dist
 coverage
-uploads
 
+# Environment
+.env
+
+# Prisma
+/src/generated/prisma
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# IDE / AI tools
 .agents
 .claude
 .windsurf

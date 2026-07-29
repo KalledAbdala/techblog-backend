@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "techblog-backend",
   "version": "1.0.0",
   "description": "TechBlog Backend API",
   "main": "dist/server.js",
@@ -15,7 +15,7 @@
   },
 
   "author": "Kalled Abdala",
-  "license": "ISC",
+  "license": "MIT",
 
   "dependencies": {
     "@prisma/client": "^6.19.3",
