@@ -28,24 +28,27 @@ export class ArticleController {
 
     }
 
-    async findAll(req: Request, res: Response) {
+async findAll(req: Request, res: Response) {
 
     const page = Number(req.query.page) || 1;
 
     const limit = Number(req.query.limit) || 10;
 
-    const categoryId = req.query.categoryId
-    ? Number(req.query.categoryId)
-    : undefined;
+    const search = req.query.search as string | undefined;
+
+    const category = req.query.category as string | undefined;
+
+    const tag = req.query.tag as string | undefined;
 
     const articles = await this.articleService.findAll(
-    page,
-    limit,
-    categoryId
+        page,
+        limit,
+        search,
+        category,
+        tag
     );
 
     return res.json(articles);
-
 }
 
 async findBySlug(req: Request, res: Response) {

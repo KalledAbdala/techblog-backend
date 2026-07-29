@@ -52,52 +52,72 @@ export class ArticleService {
     });
     }
 
-    async findAll(
-    page = 1,
-    limit = 10,
-    categoryId?: number
+async findAll(
+    page: number,
+    limit: number,
+    search?: string,
+    category?: string,
+    tag?: string
 ) {
-  const skip = (page - 1) * limit;
 
-    const where = categoryId
-    ? {
-        categoryId,
+    const skip = (page - 1) * limit;
+
+    const where: any = {
         published: true,
-        }
-    : {
-        published: true,
+    };
+
+if (search) {
+    where.title = {
+        contains: search,
+    };
+}
+
+    if (category) {
+        where.category = {
+            slug: category,
         };
+    }
+
+    if (tag) {
+        where.articleTags = {
+            some: {
+                tag: {
+                    slug: tag,
+                },
+            },
+        };
+    }
 
     const [articles, total] = await Promise.all([
-    prisma.article.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: {
-        createdAt: "desc",
-        },
-        include: {
-        author: {
-            select: {
-            id: true,
-            name: true,
+        prisma.article.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: {
+                createdAt: "desc",
             },
-        },
-        category: true,
-        },
-    }),
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+                category: true,
+            },
+        }),
 
-    prisma.article.count({
-        where,
-    }),
+        prisma.article.count({
+            where,
+        }),
     ]);
 
     return {
-    page,
-    limit,
-    total,
-    totalPages: Math.ceil(total / limit),
-    data: articles,
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        data: articles,
     };
 }
 
