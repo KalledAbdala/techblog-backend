@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 
+import { addTagSchema } from "../schemas/article-tag.schema.js";
+
 import { AppError } from "../errors/AppError.js";
 
 import { ArticleService } from "../services/article.service.js";
@@ -86,6 +88,42 @@ async uploadBanner(req: Request, res: Response) {
     );
 
     return res.json(article);
+}
+
+async addTag(req: Request, res: Response) {
+
+    const articleId = Number(req.params.id);
+
+    const data = addTagSchema.parse(req.body);
+
+    const result = await this.articleService.addTag(
+        articleId,
+        data
+    );
+
+    return res.json(result);
+}
+
+    async findTags(req: Request, res: Response) {
+
+    const articleId = Number(req.params.id);
+
+    const tags = await this.articleService.findTags(articleId);
+
+    return res.json(tags);
+}
+
+async removeTag(req: Request, res: Response) {
+
+    const articleId = Number(req.params.id);
+    const tagId = Number(req.params.tagId);
+
+    const result = await this.articleService.removeTag(
+        articleId,
+        tagId
+    );
+
+    return res.json(result);
 }
 
 }

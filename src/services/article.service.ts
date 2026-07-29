@@ -1,3 +1,4 @@
+import type { AddTagDTO } from "../schemas/article-tag.schema.js";
 import { prisma } from "../lib/prisma.js";
 import { AppError } from "../errors/AppError.js";
 import type {
@@ -233,6 +234,108 @@ async uploadBanner(
         },
     });
 
+}
+
+    async addTag(
+    articleId: number,
+    data: AddTagDTO
+) {
+
+    const article = await prisma.article.findUnique({
+        where: {
+            id: articleId,
+        },
+    });
+
+    if (!article) {
+        throw new AppError("Artigo não encontrado.", 404);
+    }
+
+    const tag = await prisma.tag.findUnique({
+        where: {
+            id: data.tagId,
+        },
+    });
+
+    if (!tag) {
+        throw new AppError("Tag não encontrada.", 404);
+    }
+
+    const relationExists = await prisma.articleTag.findUnique({
+        where: {
+            articleId_tagId: {
+                articleId,
+                tagId: data.tagId,
+            },
+        },
+    });
+
+    if (relationExists) {
+        throw new AppError("Essa tag já está vinculada ao artigo.", 409);
+    }
+
+    await prisma.articleTag.create({
+        data: {
+            articleId,
+            tagId: data.tagId,
+        },
+    });
+
+    return {
+        message: "Tag adicionada ao artigo com sucesso.",
+    };
+}
+
+async findTags(articleId: number) {
+    const article = await prisma.article.findUnique({
+        where: {
+            id: articleId,
+        },
+    });
+
+    if (!article) {
+        throw new AppError("Artigo não encontrado.", 404);
+    }
+
+    const articleTags = await prisma.articleTag.findMany({
+        where: {
+            articleId,
+        },
+        include: {
+            tag: true,
+        },
+    });
+
+    return articleTags.map((item) => item.tag);
+}
+
+async removeTag(articleId: number, tagId: number) {
+
+    const relation = await prisma.articleTag.findUnique({
+        where: {
+            articleId_tagId: {
+                articleId,
+                tagId,
+            },
+        },
+    });
+
+    if (!relation) {
+        throw new AppError("Essa tag não está vinculada ao artigo.", 404);
+    }
+
+    await prisma.articleTag.delete({
+        where: {
+            articleId_tagId: {
+                articleId,
+                tagId,
+            },
+        },
+    });
+
+    return {
+        message: "Tag removida com sucesso.",
+    };
 }
 
 }

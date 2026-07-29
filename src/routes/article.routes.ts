@@ -57,4 +57,27 @@ articleRouter.post(
     )
 );
 
+articleRouter.post(
+    "/:id/tags",
+    authMiddleware,
+    asyncHandler(
+        articleController.addTag.bind(articleController)
+    )
+);
+
+articleRouter.get(
+    "/:id/tags",
+    asyncHandler(
+        articleController.findTags.bind(articleController)
+    )
+);
+
+articleRouter.delete(
+    "/:id/tags/:tagId",
+    authMiddleware,
+    asyncHandler(
+        articleController.removeTag.bind(articleController)
+    )
+);
+
 export { articleRouter };
